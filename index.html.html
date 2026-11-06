@@ -1,0 +1,295 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Mô phỏng buổi giới thiệu sản phẩm · Mycelium Packaging</title>
+<style>
+:root{--ink:#2b2118;--card:rgba(255,252,246,.96);--acc:#8a5a2b;--line:rgba(43,33,24,.15);--bg:#f4efe6;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--ink:#f2eadd;--card:rgba(36,29,22,.96);--acc:#d9a566;--line:rgba(242,234,221,.2);--bg:#1d1812}}
+html,body{height:100%;margin:0;background:var(--bg);color:var(--ink);font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;overflow:hidden}
+#c{position:fixed;inset:0;width:100%;height:100%;display:block;touch-action:none}
+#hud{position:fixed;left:16px;right:16px;top:calc(env(safe-area-inset-top,0px) + 12px);pointer-events:none;display:flex;justify-content:space-between;gap:12px}
+#hud b{font-size:15px;text-transform:uppercase;letter-spacing:.04em}
+#hud p{margin:2px 0 0;font-size:12px;opacity:.75}
+#cnt{pointer-events:auto;background:var(--card);border:1px solid var(--line);border-radius:12px;padding:8px 12px;font-size:12px;text-align:right;white-space:nowrap}
+#cnt button{margin-top:6px;border:1px solid var(--line);background:none;color:var(--ink);border-radius:999px;padding:4px 10px;font-size:12px;cursor:pointer}
+#nav{position:fixed;left:0;right:0;bottom:calc(env(safe-area-inset-bottom,0px) + 14px);display:flex;gap:8px;padding:0 12px;overflow-x:auto;justify-content:safe center}
+#nav button{flex:none;border:1px solid var(--line);background:var(--card);color:var(--ink);padding:9px 14px;border-radius:999px;font-size:13px;cursor:pointer}
+#nav button.on{background:var(--acc);color:#fff;border-color:transparent}
+#p{position:fixed;top:0;right:0;bottom:0;width:min(440px,100%);box-sizing:border-box;background:var(--card);border-left:1px solid var(--line);padding:calc(env(safe-area-inset-top,0px) + 22px) 22px 80px;overflow:auto;transform:translateX(105%);transition:transform .3s;backdrop-filter:blur(8px)}
+#p.open{transform:none}
+#p h2{margin:6px 0 8px;font-size:21px}
+#p h3{margin:16px 0 6px;font-size:12px;text-transform:uppercase;letter-spacing:.06em;color:var(--acc)}
+#p .tag{display:inline-block;font-size:12px;padding:3px 10px;border-radius:999px;background:var(--acc);color:#fff}
+#p p,#p li{font-size:14px;line-height:1.5;margin:0 0 6px}
+#p ul{padding-left:18px;margin:0}
+#x{position:absolute;top:calc(env(safe-area-inset-top,0px) + 14px);right:14px;border:0;background:none;color:var(--ink);font-size:24px;cursor:pointer}
+#act{margin-top:12px}.note{font-size:12px!important;opacity:.75}
+.log{max-height:260px;overflow:auto;display:flex;flex-direction:column;gap:6px;margin:8px 0}
+.msg{padding:8px 11px;border-radius:12px;font-size:13.5px;line-height:1.5;max-width:90%;white-space:pre-wrap}
+.msg.me{align-self:flex-end;background:var(--acc);color:#fff}.msg.bot{align-self:flex-start;background:var(--line)}
+.chips{display:flex;flex-wrap:wrap;gap:6px;margin:6px 0}
+.chips button,.go{border:1px solid var(--acc);background:none;color:var(--ink);border-radius:999px;padding:6px 11px;font-size:12.5px;cursor:pointer;text-align:left}
+.go{background:var(--acc);color:#fff;padding:8px 14px}.go:disabled{opacity:.5}
+.row{display:flex;gap:6px}.row input,.nm,select{flex:1;min-width:0;width:100%;box-sizing:border-box;padding:9px 11px;border:1px solid var(--line);border-radius:10px;background:transparent;color:var(--ink);font-size:16px;margin-bottom:8px}
+.it{display:flex;gap:10px;padding:10px;border:1px solid var(--line);border-radius:10px;margin-bottom:8px;font-size:13px;line-height:1.4;cursor:pointer}.it b{display:block}
+.kpi{margin-top:12px;padding:12px;border:1px dashed var(--acc);border-radius:10px;font-size:13px;line-height:1.6}
+.bub{position:fixed;z-index:20;width:min(340px,calc(100vw - 20px));box-sizing:border-box;background:var(--card);border:1px solid var(--line);border-radius:16px;padding:10px 12px 12px;box-shadow:0 8px 28px rgba(0,0,0,.28);backdrop-filter:blur(8px)}
+.bub::after{content:"";position:absolute;left:var(--tx,30px);bottom:-8px;width:14px;height:14px;background:var(--card);border-right:1px solid var(--line);border-bottom:1px solid var(--line);transform:rotate(45deg)}
+.bh{display:flex;justify-content:space-between;align-items:center;font-weight:600;font-size:13px}.bh button{border:0;background:none;color:var(--ink);font-size:20px;cursor:pointer;line-height:1}
+.bub .log{max-height:190px}.bub .note{margin:2px 0!important}
+.sb{position:fixed;z-index:15;width:max-content;max-width:220px;padding:6px 10px;border-radius:12px;background:var(--card);border:1px solid var(--line);font-size:12.5px;line-height:1.4;pointer-events:none;box-shadow:0 4px 14px rgba(0,0,0,.2)}
+.sb.ck{pointer-events:auto;cursor:pointer;border-color:var(--acc)}
+#pad{display:none;position:fixed;left:12px;right:12px;bottom:calc(env(safe-area-inset-bottom,0px) + 70px);justify-content:space-between;align-items:flex-end;pointer-events:none;z-index:10}#pad.on{display:flex}
+#pad button{pointer-events:auto;touch-action:none;width:50px;height:50px;border-radius:50%;border:1px solid var(--line);background:var(--card);color:var(--ink);font-size:18px;cursor:pointer;user-select:none;-webkit-user-select:none}
+.dp{display:grid;grid-template-columns:repeat(3,50px);grid-template-areas:". f ." "l b r";gap:6px}.dp [data-k=f]{grid-area:f}.dp [data-k=l]{grid-area:l}.dp [data-k=b]{grid-area:b}.dp [data-k=r]{grid-area:r}.tp{display:flex;gap:8px}
+</style>
+</head>
+<body>
+<canvas id="c"></canvas>
+<div id="hud"><div><b>Buổi giới thiệu sản phẩm · Mycelium Packaging</b><p>Kéo để xoay · cuộn/chụm để zoom · nhấn vào nhân viên để trò chuyện · nhấn vào khu để xem thông tin · Nhân viên mặc đồng phục polo xanh rêu An Phát, đeo thẻ tên</p></div>
+<div id="cnt">Lượt khách ghé gian hàng: <b id="n">0</b><br><button id="pp">Tạm dừng</button></div></div>
+<div id="nav"></div>
+<div id="pad"><div class="dp"><button data-k="f">▲</button><button data-k="l">◀</button><button data-k="b">▼</button><button data-k="r">▶</button></div><div class="tp"><button data-k="tl">⟲</button><button data-k="tr">⟳</button></div></div>
+<aside id="p"><button id="x" aria-label="Đóng">×</button><span class="tag" id="pt"></span><h2 id="ph"></h2><p id="pd"></p>
+<h3>Cần chuẩn bị</h3><ul id="pi"></ul><h3>Nhân sự</h3><p id="ps"></p><h3>Đầu ra</h3><p id="po"></p><div id="act"></div></aside>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script>
+const Z=[
+{n:'Đón tiếp & Check-in',col:0x8a5a2b,x:-13,z:-6,d:'Điểm chạm đầu tiên: ghi nhận người tham dự và ưu tiên khách đã trao đổi, nhận mẫu hoặc tham gia thử nghiệm.',i:['Danh sách khách mời ưu tiên','Thẻ tên có doanh nghiệp và vai trò','Biểu mẫu ghi nhận yêu cầu','Mã QR dẫn về website Mycelium Packaging'],s:'Marketing + Sales (đồng phục An Phát, thẻ tên)',o:'Dữ liệu vào CRM: doanh nghiệp, người liên hệ, vai trò, ứng dụng cần đóng gói.'},
+{n:'Trưng bày mẫu',col:0x3f7d58,x:0,z:-6,d:'Để khách nhìn và chạm vào mẫu thật, gắn với ngành của họ thay vì quà quảng bá chung chung.',i:['Khay định hình cho chai lọ mỹ phẩm','Mẫu cho tinh dầu','Mẫu cho bộ quà tặng cao cấp','Mã nhận diện cho từng mẫu','Hình ảnh ứng dụng dự kiến'],s:'Sales + kỹ thuật bao bì (đồng phục An Phát, thẻ tên)',o:'Phản hồi về hình dạng, cấu trúc, bề mặt và điểm cần điều chỉnh.'},
+{n:'Quy trình & tiêu chí đánh giá',col:0x2f6f8f,x:13,z:-6,d:'Giải thích cách phát triển mẫu và tiêu chí đánh giá để giảm rủi ro cảm nhận của khách hàng. Tại quầy, nhân viên phối trộn nguyên liệu, ép khuôn và kiểm tra thành phẩm ngay trước mặt khách.',i:['Quy trình phát triển mẫu (tơ nấm sinh trưởng 5–7 ngày)','Tiêu chí: độ vừa khít, tháo lắp, ổn định, quy trình đóng gói','Kết quả đã được xác nhận','Ghi chú giới hạn sử dụng, không cam kết cho mọi ứng dụng'],s:'Kỹ thuật / R&D (đồng phục An Phát, thẻ tên)',o:'Khách hiểu cách đánh giá và điều kiện để chuyển sang thử nghiệm.'},
+{n:'Sân khấu hội thảo & Hỏi đáp',col:0xa8532f,x:13,z:6,d:'Chủ đề: “Từ vật liệu sợi nấm đến giải pháp bao bì định hình: Đánh giá ứng dụng thực tế trong đóng gói mỹ phẩm và quà tặng cao cấp”.',i:['Sân khấu có bục, backdrop LED chạy 4 slide, truss và đèn rọi','Bục diễn giả, micro cài áo','Micro cầm tay cho phần hỏi đáp, ghế khán phòng','Nội dung trình bày đã xác minh dữ liệu','Phiếu thu thập câu hỏi'],s:'Diễn giả (vest), chuyên gia kỹ thuật ngồi ghế cạnh sân khấu, nhân viên cầm micro hỏi đáp (đồng phục An Phát)',o:'Yêu cầu mới về ứng dụng, nhu cầu báo giá, vấn đề cần giải quyết trước khi mua.'},
+{n:'Tư vấn 1:1',col:0x7a5fb0,x:0,z:6,d:'Trao đổi riêng với khách đã sàng lọc, có Sales và kỹ thuật tham gia.',i:['Sản phẩm cần đóng gói: kích thước, hình dạng, khối lượng, độ dễ vỡ','Bao bì hiện tại và vấn đề đang gặp','Yếu tố ưu tiên: bảo vệ, thiết kế riêng, hình thức, vật liệu, chi phí','Điều kiện chấp nhận mẫu và quy trình phê duyệt mua hàng','Thời điểm dự kiến thử nghiệm'],s:'Sales + kỹ thuật bao bì / R&D (đồng phục An Phát, thẻ tên)',o:'Bản tóm tắt yêu cầu từng doanh nghiệp; chỉ phát triển mẫu khi đã xác định ứng dụng và tiêu chí cơ bản.'},
+{n:'Quầy phát Sample Box',col:0xc08a2b,x:-13,z:6,d:'Điểm cuối hành trình: khách chọn nội dung hộp mẫu mang về và chốt bước tiếp theo để không mất lead. Nhấn vào nhân viên ở quầy để chọn nội dung hộp.',i:['Hộp sample box bằng vật liệu sợi nấm','Vật liệu sợi nấm mẫu (khay, bộ đệm)','Kit trồng nấm trải nghiệm','Brochure, tài liệu ứng dụng, thông tin kỹ thuật','Phiếu đánh giá sample, Sales FAQ, mã QR đặt lịch'],s:'2 nhân viên Sales/CSKH (đồng phục An Phát, thẻ tên)',o:'Khách nhận hộp và để lại thông tin liên hệ; Sales theo dõi từng người, chuyển lead đủ điều kiện thành cuộc họp thương mại.'}];
+const dark=matchMedia('(prefers-color-scheme: dark)').matches,bg=dark?0x1d1812:0xf4efe6;
+const cv=document.getElementById('c'),R=new THREE.WebGLRenderer({canvas:cv,antialias:true});R.setPixelRatio(Math.min(devicePixelRatio,2));
+const sc=new THREE.Scene();sc.background=new THREE.Color(bg);
+const cam=new THREE.PerspectiveCamera(50,1,.1,200);
+sc.add(new THREE.HemisphereLight(0xffffff,dark?0x3a2e22:0xcdb89a,dark?.85:1));
+const dl=new THREE.DirectionalLight(0xffffff,.7);dl.position.set(10,25,12);sc.add(dl);
+const M=(c,o={})=>new THREE.MeshStandardMaterial(Object.assign({color:c,roughness:.9},o));
+const hex=n=>'#'+n.toString(16).padStart(6,'0');
+function box(w,h,d,c,x,y,z,p){const m=new THREE.Mesh(new THREE.BoxGeometry(w,h,d),M(c));m.position.set(x,y,z);p.add(m);return m}
+function cyl(r,h,c,x,y,z,p,o){const m=new THREE.Mesh(new THREE.CylinderGeometry(r,r,h,24),M(c,o));m.position.set(x,y,z);p.add(m);return m}
+const hall=new THREE.Mesh(new THREE.BoxGeometry(46,.4,26),M(dark?0x2a2218:0xe6dccb));hall.position.y=-.2;sc.add(hall);
+function trayGeo(){const w=3.2,h=1.8,r=.3,s=new THREE.Shape();s.moveTo(-w/2+r,-h/2);s.lineTo(w/2-r,-h/2);s.quadraticCurveTo(w/2,-h/2,w/2,-h/2+r);s.lineTo(w/2,h/2-r);s.quadraticCurveTo(w/2,h/2,w/2-r,h/2);s.lineTo(-w/2+r,h/2);s.quadraticCurveTo(-w/2,h/2,-w/2,h/2-r);s.lineTo(-w/2,-h/2+r);s.quadraticCurveTo(-w/2,-h/2,-w/2+r,-h/2);
+[-.95,0,.95].forEach(x=>{const p=new THREE.Path();p.absarc(x,0,.36,0,Math.PI*2,true);s.holes.push(p)});
+const g=new THREE.ExtrudeGeometry(s,{depth:.35,bevelEnabled:true,bevelSize:.05,bevelThickness:.05,bevelSegments:2,curveSegments:20});g.rotateX(-Math.PI/2);return g}
+const TG=trayGeo();
+function tex(w,h,fn){const k=document.createElement('canvas');k.width=w;k.height=h;fn(k.getContext('2d'));return new THREE.CanvasTexture(k)}
+function tag(i,name,col){const t=tex(512,128,c=>{c.fillStyle=hex(col);c.beginPath();c.roundRect?c.roundRect(0,0,512,128,28):c.rect(0,0,512,128);c.fill();c.fillStyle='#fff';c.font='700 56px system-ui,sans-serif';c.fillText(i+1,28,84);c.font='600 30px system-ui,sans-serif';c.fillText(name.length>22?name.slice(0,21)+'…':name,92,78)});
+const s=new THREE.Sprite(new THREE.SpriteMaterial({map:t,depthTest:false}));s.scale.set(7,1.75,1);s.renderOrder=9;return s}
+const anim=[],UN=0x1f5c46;
+const wrap=(c,t,x,y,w,l)=>{let a='';for(const s of t.split(' ')){const u=a+s+' ';if(c.measureText(u).width>w&&a){c.fillText(a,x,y);a=s+' ';y+=l}else a=u}c.fillText(a,x,y);return y};
+const NT=(()=>{const k=document.createElement('canvas');k.width=k.height=256;const c=k.getContext('2d');c.fillStyle='#d8c29e';c.fillRect(0,0,256,256);
+for(let i=0;i<5000;i++){const v=150+Math.random()*90|0;c.fillStyle='rgba('+v+','+(v-25)+','+(v-65)+',.35)';c.fillRect(Math.random()*256,Math.random()*256,1+Math.random()*3,1+Math.random()*3)}
+c.strokeStyle='rgba(255,246,225,.35)';for(let i=0;i<260;i++){c.beginPath();const x=Math.random()*256,y=Math.random()*256;c.moveTo(x,y);c.lineTo(x+Math.random()*14-7,y+Math.random()*14-7);c.stroke()}
+const t=new THREE.CanvasTexture(k);t.wrapS=t.wrapT=THREE.RepeatWrapping;t.repeat.set(.6,.6);return t})();
+const myc=c=>new THREE.MeshStandardMaterial({map:NT,bumpMap:NT,bumpScale:2.2,roughness:1,color:c||0xf2e6cf});
+const rr=(w,h,r)=>{const s=new THREE.Shape(),a=w/2,b=h/2;s.moveTo(-a+r,-b);s.lineTo(a-r,-b);s.quadraticCurveTo(a,-b,a,-b+r);s.lineTo(a,b-r);s.quadraticCurveTo(a,b,a-r,b);s.lineTo(-a+r,b);s.quadraticCurveTo(-a,b,-a,b-r);s.lineTo(-a,-b+r);s.quadraticCurveTo(-a,-b,-a+r,-b);return s};
+const ext=(s,d)=>{const e=new THREE.ExtrudeGeometry(s,{depth:d,bevelEnabled:true,bevelSize:.05,bevelThickness:.04,bevelSegments:3,curveSegments:24});e.rotateX(-Math.PI/2);return e};
+function bottle(k){const g=new THREE.Group(),G=(r1,r2,h,c,y,o)=>{const m=new THREE.Mesh(new THREE.CylinderGeometry(r1,r2,h,24),M(c,o||{}));m.position.y=y;g.add(m)},gl={roughness:.2,transparent:true,opacity:.88};
+ if(k==0){G(.3,.3,.7,0x7a3f12,.35,gl);G(.12,.3,.14,0x7a3f12,.77,gl);G(.12,.12,.1,0x222222,.89);G(.1,.1,.3,0x222222,1.09);const b=new THREE.Mesh(new THREE.SphereGeometry(.1,12,10),M(0x111111));b.position.y=1.32;g.add(b)}
+ if(k==1){G(.34,.34,.5,0xf6f1e7,.25,{roughness:.4});G(.35,.35,.14,0xc9a24a,.57,{metalness:.8,roughness:.3})}
+ if(k==2){G(.28,.28,.85,0xa9c9b2,.42,gl);G(.1,.1,.12,0xcfcfcf,.91,{metalness:.8});G(.04,.04,.25,0xcfcfcf,1.1);const n=new THREE.Mesh(new THREE.BoxGeometry(.22,.06,.07),M(0xcfcfcf,{metalness:.8}));n.position.set(.08,1.24,0);g.add(n)}
+ return g}
+// khay sợi nấm: đế dày + thành khoét hốc ôm sát chai, bề mặt sần sợi
+function mycTray(w,h,pk,kinds,sc,col){const g=new THREE.Group(),m=myc(col),s=rr(w,h,.3);
+ pk.forEach(p=>{const q=new THREE.Path();q.absarc(p[0],p[1],p[2],0,Math.PI*2,true);s.holes.push(q)});
+ const wall=new THREE.Mesh(ext(s,.5),m);wall.position.y=.16;g.add(new THREE.Mesh(ext(rr(w,h,.3),.16),m),wall);
+ pk.forEach((p,i)=>{if(kinds[i]>=0){const b=bottle(kinds[i]);b.position.set(p[0],.2,-p[1]);g.add(b)}});g.scale.setScalar(sc);return g}
+function panel(p,w,h,x,y,z,title,body,col){const W=512,H=Math.round(512*h/w),m=new THREE.Mesh(new THREE.PlaneGeometry(w,h),new THREE.MeshBasicMaterial({map:tex(W,H,c=>{c.fillStyle='#fffaf0';c.fillRect(0,0,W,H);c.fillStyle=hex(col);c.fillRect(0,0,W,14);c.fillStyle='#2b2118';c.font='700 34px system-ui,sans-serif';const y2=wrap(c,title,24,70,464,40);c.font='24px system-ui,sans-serif';c.fillStyle='#5a4a3a';wrap(c,body,24,y2+42,464,30)})}));m.position.set(x,y,z);p.add(m);return m}
+function chair(p,x,y,z,ry,c){const g=new THREE.Group();box(.6,.08,.6,c,0,.5,0,g);box(.6,.5,.07,c,0,.8,-.3,g);cyl(.05,.5,0x333333,0,.25,0,g);g.position.set(x,y,z);g.rotation.y=ry;p.add(g)}
+function banner(p,x,z,t,col){box(1.3,.08,.5,0x222222,x,.04,z,p);panel(p,1.2,3,x,1.65,z,t[0],t[1],col)}
+// nhân viên: đồng phục polo xanh rêu, quần tối, thẻ tên, logo ngực trái
+function person(p,x,y,z,ry,o){o=o||{};const g=new THREE.Group(),u=new THREE.Group(),top=o.top==null?UN:o.top,pant=o.pant==null?0x2b2b33:o.pant,sk=o.skin||0xf0cfa8;
+ const add=(geo,c,px,py,pz,par)=>{const m=new THREE.Mesh(geo,M(c));m.position.set(px,py,pz);(par||u).add(m);return m},C=(a,b,h)=>new THREE.CylinderGeometry(a,b,h,14),B=(w,h,d)=>new THREE.BoxGeometry(w,h,d);
+ g.add(u);u.position.y=o.sit?-.4:0;
+ if(o.sit)[-1,1].forEach(s=>{add(C(.11,.11,.45),pant,s*.13,.5,.22,g).rotation.x=Math.PI/2;add(C(.1,.1,.45),pant,s*.13,.24,.45,g)});
+ else[-1,1].forEach(s=>add(C(.11,.1,.82),pant,s*.12,.41,0,g));
+ add(C(.25,.22,.64),top,0,1.1,0);
+ const arm=s=>{const a=new THREE.Group();a.position.set(s*.31,1.36,0);add(C(.065,.06,.55),top,0,-.27,0,a);add(new THREE.SphereGeometry(.07,10,8),sk,0,-.57,0,a);a.rotation.z=-s*.06;u.add(a);return a},A1=arm(-1),A2=arm(1);
+ const hd=add(new THREE.SphereGeometry(.18,16,12),sk,0,1.65,0);add(new THREE.SphereGeometry(.19,16,12,0,Math.PI*2,0,Math.PI*.55),o.hair||0x2a1d14,0,.02,-.015,hd);
+ if(!o.guest){add(B(.1,.14,.02),0xffffff,.1,1.17,.25);add(B(.03,.4,.01),0x14352a,.1,1.3,.245);add(B(.1,.1,.012),0xf2c14e,-.12,1.28,.25)}
+ if(o.tie)add(B(.06,.36,.02),0xb3202a,0,1.18,.25);
+ g.position.set(x,y,z);g.rotation.y=ry;p.add(g);if(!o.guest&&p.userData.i!=null){g.userData={staff:1,zone:p.userData.i,hd};SBZ[p.userData.i].push(g)}
+ anim.push(T=>{hd.rotation.y=g.userData.look!=null?g.userData.look:Math.sin(T*.7+x*3+z)*.35;u.position.y=(o.sit?-.4:0)+Math.sin(T*1.6+x)*.01;if(o.speak){A2.rotation.x=-1.1+Math.sin(T*2.2)*.35;A2.rotation.z=-.3}if(o.ask)A2.rotation.x=-1.4;if(o.work){const a=Math.sin(T*5),k=Math.abs(Math.sin(T*1.1));hd.rotation.y=Math.sin(T*.5)*.15;hd.rotation.x=.3;if(o.work=='mix'){A1.rotation.x=-1-a*.15;A2.rotation.x=-1+a*.15;A1.rotation.z=.2;A2.rotation.z=-.2}else if(o.work=='press')A1.rotation.x=A2.rotation.x=-.9-k*.5;else A1.rotation.x=A2.rotation.x=-1+a*.05}});return g}
+const SL=['Từ vật liệu sợi nấm đến giải pháp bao bì định hình|Đánh giá ứng dụng thực tế trong đóng gói mỹ phẩm và quà tặng cao cấp','Bao bì bảo vệ tùy chỉnh|Thiết kế theo chai lọ · Bảo vệ hàng hóa · Vật liệu sinh học','Quy trình & tiêu chí đánh giá|Độ vừa khít · Tháo lắp · Ổn định · Quy trình đóng gói','Hỏi đáp & đăng ký thử mẫu|Sales và kỹ thuật cùng trao đổi với quý khách'].map((s,i)=>{const q=s.split('|');return tex(1024,430,c=>{const gr=c.createLinearGradient(0,0,1024,430);gr.addColorStop(0,'#14352a');gr.addColorStop(1,'#1f5c46');c.fillStyle=gr;c.fillRect(0,0,1024,430);c.fillStyle='#f2c14e';c.font='600 30px system-ui,sans-serif';c.fillText('AN PHÁT HOLDINGS · MYCELIUM PACKAGING',40,60);c.fillStyle='#fff';c.font='700 56px system-ui,sans-serif';const y=wrap(c,q[0],40,150,940,66);c.font='32px system-ui,sans-serif';c.fillStyle='#d8e8de';wrap(c,q[1],40,y+60,940,42);c.fillStyle='#f2c14e';c.fillRect(40,392,(i+1)*240,8)})});
+const gst=[0xf6e2b3,0xd9a77a,0xe8bf94],pal=[0x2b3a55,0x3a3a3a,0x6b4f3a,0x7a8793,0x1c1c24];
+const BUILD=[
+g=>{[-3.5,3.5].forEach(x=>box(.3,3.6,.3,0x2b2118,x,1.8,-3.6,g));box(7.3,.35,.3,0x2b2118,0,3.7,-3.6,g);
+ panel(g,5,1.1,0,3.1,-3.5,'Chào mừng quý khách','An Phát Holdings · Mycelium Packaging',0x8a5a2b);
+ box(5.2,1,1.1,0x3a2c20,0,.5,-.6,g);panel(g,3.6,.8,0,.5,-.04,'AN PHÁT HOLDINGS','Check-in · Nhận thẻ tên',0x1f5c46);
+ [-1.4,1.4].forEach(x=>{box(.7,.04,.5,0x999999,x,1.02,-.6,g);const s=box(.7,.45,.03,0x222222,x,1.25,-.85,g);s.rotation.x=-.2;person(g,x,0,-1.4,0,{})});
+ for(let k=0;k<5;k++)box(.3,.02,.2,0xffffff,-.6+k*.3,1.02,-.3,g);
+ banner(g,-4.6,-1,['Đăng ký','Quét QR để nhận tài liệu và đặt lịch tư vấn'],0x8a5a2b);banner(g,4.6,-1,['An Phát','Mycelium Packaging'],0x1f5c46)},
+g=>{[[-3.2,()=>mycTray(3.2,1.8,[[-.95,0,.37],[0,0,.37],[.95,0,.37]],[0,2,1],.62),'Khay mỹ phẩm · 3 chai'],[0,()=>mycTray(2.2,2.2,[[-.5,-.5,.37],[.5,-.5,.37],[-.5,.5,.37],[.5,.5,.37]],[0,0,0,0],.7),'Khay tinh dầu · 4 lọ'],[3.2,()=>mycTray(3,2,[[-.7,0,.38],[.6,.45,.33],[.6,-.45,.33]],[1,0,0],.65),'Khay quà tặng · bộ 3']].forEach(a=>{
+  cyl(1.15,1.2,0x3a2c20,a[0],.5,-.8,g);const m=a[1]();m.position.set(a[0],1,-.8);g.add(m);anim.push(T=>m.rotation.y=T*.4);panel(g,1.9,.5,a[0],.6,.4,a[2],'',0x3f7d58)});
+ person(g,-4.9,0,.8,.8,{});person(g,4.9,0,.8,-.8,{})},
+g=>{box(10,3.4,.25,0xfffaf0,0,2,-4,g);['Phụ phẩm|Rơm rạ, trấu, mùn cưa','Phối trộn|Nguyên liệu nền và giống nấm','Nuôi tơ nấm|5–7 ngày trong khuôn','Sấy & hoàn thiện|Khay, bộ đệm định hình'].forEach((s,k)=>{const q=s.split('|');panel(g,2.2,1.7,-3.7+k*2.47,2.4,-3.85,(k+1)+'. '+q[0],q[1],[0x3f7d58,0x2f6f8f,0xd98c3f,0xa8532f][k])});
+ box(8,.9,1.2,0x3a2c20,0,.45,-1.5,g);panel(g,3.2,.8,0,.5,-.88,'Trình diễn trực tiếp','Làm mẫu ngay trước mặt khách',0x2f6f8f);
+ cyl(.5,.3,0x4a3420,-2.6,1.05,-1.55,g);cyl(.42,.05,0xc9a77a,-2.6,1.2,-1.55,g);const sp=box(.05,.5,.05,0x8a5a2b,-2.6,1.45,-1.55,g);
+ [[-3.6,0xd8b84a],[-2.9,0x6b4a2a],[-2.2,0xc9a77a]].forEach(a=>{cyl(.22,.15,0xf3efe6,a[0],.98,-1.05,g);cyl(.19,.1,a[1],a[0],1.06,-1.05,g)});
+ box(1.6,.35,1.1,0x44464f,0,1.08,-1.55,g);const lid=box(1.5,.2,1,0x666a75,0,1.5,-1.55,g);
+ const fin=mycTray(1.4,1,[[-.35,0,.26],[.35,0,.26]],[0,1],.55);fin.position.set(2.6,.95,-1.5);g.add(fin);
+ const rk=new THREE.Group();rk.position.set(4.3,0,-3.1);g.add(rk);[.5,1.2,1.9].forEach(y=>{box(1.8,.06,1,0x8a5a2b,0,y,0,rk);const t=mycTray(1.2,.8,[[-.3,0,.22],[.3,0,.22]],[-1,-1],.6,0xffffff);t.position.set(0,y+.03,0);rk.add(t)});panel(rk,1.8,.6,0,2.6,.2,'Phòng nuôi','Tơ nấm 5–7 ngày',0x3f7d58);
+ anim.push(T=>{lid.position.y=1.5-Math.abs(Math.sin(T*1.1))*.35;sp.position.set(-2.6+Math.cos(T*5)*.2,1.45,-1.55+Math.sin(T*5)*.2);sp.rotation.z=Math.cos(T*5)*.3;fin.rotation.y=T*.5});
+ person(g,-2.6,0,-2.45,0,{work:'mix'});person(g,0,0,-2.45,0,{work:'press'});person(g,2.6,0,-2.45,0,{work:'look'})},
+g=>{const Y=.6,cz=-2.9;box(9.6,Y,3.4,0x1e1e24,0,Y/2,cz,g);box(9.6,.06,.08,0xffd27a,0,Y-.06,cz+1.72,g).material=new THREE.MeshBasicMaterial({color:0xffd27a});
+ box(9.4,.02,3.2,0x2a3140,0,Y+.01,cz,g);box(2,.3,.8,0x1e1e24,3.2,.15,cz+2.1,g);
+ box(8.4,3.7,.15,0x0b0b0e,0,2.9,-4.45,g);const sm=new THREE.MeshBasicMaterial({map:SL[0]}),scr=new THREE.Mesh(new THREE.PlaneGeometry(8,3.35),sm);scr.position.set(0,2.9,-4.36);g.add(scr);
+ let last=0;anim.push(T=>{const k=Math.floor(T/4)%4;if(k!==last){last=k;sm.map=SL[k];sm.needsUpdate=true}});
+ banner(g,-5.1,-2.4,['An Phát','Mycelium Packaging'],0x1f5c46);banner(g,5.1,-2.4,['Hội thảo','Tháng 4 · Giới thiệu sản phẩm'],0x8a5a2b);
+ [-4.5,4.5].forEach(x=>cyl(.08,5.4,0x222222,x,2.7,-1.3,g));
+ [-1.3,-3.6].forEach(z=>{cyl(.07,9.2,0x222222,0,5.3,z,g).rotation.z=Math.PI/2});
+ for(let k=0;k<6;k++){const x=-3.75+k*1.5,z=k%2?-1.3:-3.6;cyl(.14,.3,0x111111,x,5.1,z,g);const b=new THREE.Mesh(new THREE.CylinderGeometry(.1,1,4.4,20,1,true),new THREE.MeshBasicMaterial({color:0xfff1c9,transparent:true,opacity:.1,depthWrite:false,side:THREE.DoubleSide}));b.position.set(x,2.9,z);g.add(b)}
+ box(.85,1.15,.6,0x3a2c20,-2.3,Y+.58,-2.2,g);panel(g,.7,.5,-2.3,Y+.65,-1.89,'AN PHÁT','',0x1f5c46);cyl(.015,.35,0x111111,-2.3,Y+1.33,-2.2,g);
+ person(g,-2.3,Y,-2.95,0,{top:0x1c1c24,pant:0x1c1c24,tie:1,speak:1,hair:0x1a1a1a});
+ cyl(.25,.5,0x222222,2.2,Y+.25,-2.6,g);person(g,2.2,Y,-2.6,-.3,{sit:1});cyl(.4,.7,0xfffaf0,3.5,Y+.35,-2.6,g);const t=mycTray(1.6,1.1,[[-.4,0,.28],[.4,0,.28]],[0,1],.35);t.position.set(3.5,Y+.7,-2.6);g.add(t);
+ [-3.6,-2.7,-1.8,1.8,2.7,3.6].forEach((x,i)=>[.5,1.6,2.7].forEach((z,r)=>{chair(g,x,0,z,Math.PI,0x2b2f3a);if((i*7+r*3)%5<3)person(g,x,0,z-.05,Math.PI,{sit:1,guest:1,top:pal[(i+r)%5],hair:[0x1a1a1a,0x3a2a1c,0x8a6a3a][(i+r)%3],skin:gst[(i*r+i)%3]})}));
+ person(g,0,0,1.6,Math.PI,{ask:1})},
+g=>{[[-3,-2],[3,-2],[-3,1.6],[3,1.6]].forEach((p,i)=>{cyl(.95,.85,0xfffaf0,p[0],.43,p[1],g);cyl(.08,.43,0x333333,p[0],.2,p[1],g);
+ const t=mycTray(1.6,1.1,[[-.4,0,.28],[.4,0,.28]],[0,1],.4);t.position.set(p[0]-.3,.86,p[1]);g.add(t);box(.5,.03,.35,0x222222,p[0]+.4,.87,p[1]+.1,g);
+ chair(g,p[0],0,p[1]-1.35,0,0x3f4a5a);person(g,p[0],0,p[1]-1.4,0,{sit:1});
+ chair(g,p[0],0,p[1]+1.35,Math.PI,0x3f4a5a);if(i!=3)person(g,p[0],0,p[1]+1.4,Math.PI,{sit:1,guest:1,top:pal[i],hair:0x2a1d14,skin:gst[i%3]})})},
+g=>{box(8,.95,1.5,0x3a2c20,0,.48,-1.6,g);panel(g,3.6,.8,0,.5,-.84,'Quầy Sample Box','Mẫu · Kit · Brochure',0xc08a2b);
+ box(8.4,3.2,.2,0xfffaf0,0,1.9,-3.9,g);[1.2,2.1,3.0].forEach((y,j)=>{box(8,.06,.5,0x8a5a2b,0,y,-3.7,g);for(let k=0;k<8;k++){const b=box(.6,.5,.35,[0xfffaf0,0x3f7d58,0xd98c3f,0x2f6f8f][(k+j)%4],-3.5+k,y+.28,-3.7,g);if((k+j)%4==0)b.material=myc()}});
+ const q=new THREE.Mesh(new THREE.PlaneGeometry(1.1,1.1),new THREE.MeshBasicMaterial({map:tex(128,128,c=>{c.fillStyle='#fff';c.fillRect(0,0,128,128);c.fillStyle='#000';for(let i=0;i<14;i++)for(let j=0;j<14;j++)if((i*7+j*13+i*j)%3==0)c.fillRect(8+i*8,8+j*8,8,8)})}));q.position.set(3.2,1.55,-.8);g.add(q);box(.1,1.1,.1,0x222222,3.2,.55,-.85,g);
+ const bx=new THREE.Group(),mc=myc();bx.position.set(0,.95,-1.45);g.add(bx);const bp=(w,h,d,x,y,z)=>{const m=new THREE.Mesh(new THREE.BoxGeometry(w,h,d),mc);m.position.set(x,y,z);bx.add(m)};
+ bp(1.3,.05,.9,0,.025,0);bp(1.3,.35,.05,0,.2,.425);bp(1.3,.35,.05,0,.2,-.425);bp(.05,.35,.9,.625,.2,0);bp(.05,.35,.9,-.625,.2,0);
+ const lid=new THREE.Group();lid.position.set(0,.38,-.45);bx.add(lid);const lm=new THREE.Mesh(new THREE.BoxGeometry(1.34,.06,.94),mc);lm.position.z=.47;lid.add(lm);
+ const im=mycTray(1.4,1,[[-.35,0,.26],[.35,0,.26]],[0,1],.5);im.position.set(-.35,.06,0);bx.add(im);
+ const ik=new THREE.Group();ik.position.set(.15,.06,0);bx.add(ik);cyl(.17,.22,0x6b4a2a,0,.11,0,ik);cyl(.12,.06,0xf3efe6,0,.25,0,ik);
+ const ib=box(.4,.04,.55,0xfffaf0,.45,.08,0,bx);box(.4,.01,.12,0x3f7d58,.45,.105,-.15,bx);
+ SB={open:false,items:{mat:im,kit:ik,bro:ib}};anim.push(T=>{lid.rotation.x+=((SB.open?-1.9:0)-lid.rotation.x)*.08});
+ person(g,-1.9,0,-2.65,0,{});person(g,1.9,0,-2.65,0,{})}];
+let SB=null;
+const el=(t,c,x)=>{const e=document.createElement(t);if(c)e.className=c;if(x!=null)e.textContent=x;return e};
+const FACT='Khay và bộ đệm định hình từ sợi nấm: vật liệu sinh học từ tơ nấm nuôi trên phụ phẩm nông nghiệp (rơm rạ, trấu, mùn cưa) trong khuôn 5–7 ngày rồi sấy và hoàn thiện; tùy chỉnh theo hình dạng chai lọ, tinh dầu, quà tặng cao cấp; phân hủy thành mùn hữu cơ, phù hợp ESG/EPR. Mẫu được đánh giá theo độ vừa khít, tháo lắp, ổn định, quy trình đóng gói. Chương trình thử nghiệm: thống nhất kế hoạch và tiêu chí đạt/không đạt, giao mẫu có mã nhận diện, thu thập dữ liệu, rà soát cùng khách làm căn cứ báo giá. Chỉ phát triển mẫu khi đã xác định ứng dụng cụ thể và tiêu chí cơ bản. Khách có thể nhận Sample Box (mẫu vật liệu, kit trồng nấm, brochure) ở quầy bên cạnh.';
+const RULE='Chỉ dùng thông tin sau. Tuyệt đối không bịa giá, chứng nhận hay số liệu độ bền; không khẳng định vượt trội so với EPS khi chưa có dữ liệu so sánh; nếu không biết, nói sẽ chuyển Sales/kỹ thuật phản hồi. Thông tin: '+FACT;
+const F=[['Sản phẩm làm từ gì?','Vật liệu sinh học từ tơ nấm, nuôi trên phụ phẩm nông nghiệp như rơm rạ, trấu, mùn cưa trong khuôn 5–7 ngày, sau đó sấy và hoàn thiện.',/làm từ|nguyên liệu|vật liệu gì|sợi nấm là gì/i],
+['Có làm vừa chai lọ của tôi không?','Khay và bộ đệm được định hình theo hình dạng, kích thước sản phẩm. Để phát triển mẫu, chúng tôi cần xác định ứng dụng cụ thể và tiêu chí đánh giá cơ bản trước.',/tùy chỉnh|vừa|kích thước|chai|lọ|thiết kế/i],
+['Mẫu được đánh giá thế nào?','Theo độ vừa khít, khả năng tháo lắp, độ ổn định và quy trình đóng gói. Kết quả đã xác nhận được ghi cùng giới hạn sử dụng, không cam kết cho mọi ứng dụng.',/tiêu chí|đánh giá|kiểm|chất lượng/i],
+['Có bền hơn xốp EPS không?','Hiện chưa có đủ dữ liệu so sánh để khẳng định vượt trội. Chúng tôi đề xuất thử nghiệm theo tiêu chí của chính doanh nghiệp bạn, ví dụ thử rơi, để có kết quả thực tế.',/eps|xốp|bền|chịu|rơi|va đập/i],
+['Làm sao để nhận mẫu thử?','Qua chương trình thử nghiệm: thống nhất kế hoạch và tiêu chí, nhận mẫu có mã nhận diện, ghi nhận dữ liệu rồi rà soát cùng nhau. Bạn cũng có thể nhận ngay Sample Box tại quầy phát mẫu.',/mẫu|thử|sample|pilot/i],
+['Giá và thời gian thế nào?','Báo giá và thời gian cụ thể được Sales trao đổi sau khi xác định ứng dụng và kết quả thử nghiệm. Buổi hôm nay không công bố giá niêm yết.',/giá|chi phí|bao lâu|thời gian|báo giá/i],
+['Có thân thiện môi trường không?','Đây là vật liệu sinh học từ phụ phẩm nông nghiệp, phân hủy thành mùn hữu cơ, phù hợp định hướng ESG và EPR.',/môi trường|phân hủy|esg|epr|xanh/i]];
+const faq=q=>{const f=F.find(a=>a[2].test(q));return f?f[1]:null};
+const QS=['Sản phẩm bạn cần đóng gói là gì? Cho mình biết kích thước, hình dạng, khối lượng và độ dễ vỡ nhé.','Hiện bạn đang dùng bao bì nào và gặp vấn đề gì với nó?','Bạn ưu tiên yếu tố nào: bảo vệ, thiết kế riêng, hình thức, vật liệu hay chi phí?','Doanh nghiệp bạn có điều kiện chấp nhận mẫu và quy trình phê duyệt mua hàng ra sao?','Bạn dự kiến thử nghiệm vào thời điểm nào?'];
+let sP=null;const getS=()=>sP||(sP=(window.claude&&window.claude.use?window.claude.use('sample'):Promise.resolve(null)).catch(()=>null));
+async function ai(prompt,cb){const S=await getS();if(!S)return null;try{return (await S([{role:'user',content:prompt}],{cache:false,onText:o=>cb(o.text)})).text}catch(e){return null}}
+function chatUI(o){const w=el('div'),log=el('div','log'),ch=el('div','chips'),row=el('div','row'),inp=el('input'),go=el('button','go','Gửi'),H=[];inp.placeholder=o.ph;
+ const add=(c,t)=>{const m=el('div','msg '+c,t);log.appendChild(m);log.scrollTop=log.scrollHeight;return m};
+ async function send(q){q=q.trim();if(!q||go.disabled)return;inp.value='';add('me',q);H.push(['u',q]);const m=add('bot','…');go.disabled=true;
+  const pr=o.sys+(o.multi?'\n\nHội thoại đến giờ:\n'+H.map(h=>(h[0]=='u'?'Khách: ':'Tư vấn viên: ')+h[1]).join('\n')+'\nTư vấn viên:':'\n\nCâu hỏi của khách: '+q);
+  let a=await ai(pr,t=>{m.textContent=t;log.scrollTop=log.scrollHeight});if(!a)a=o.fb(q,H.filter(h=>h[0]=='u').length);m.textContent=a;H.push(['b',a]);go.disabled=false;log.scrollTop=log.scrollHeight}
+ o.chips.forEach(c=>{const b=el('button',null,c[0]);b.onclick=()=>{if(c[1]){add('me',c[0]);add('bot',c[1])}else send(c[0])};ch.appendChild(b)});
+ go.onclick=()=>send(inp.value);inp.onkeydown=e=>{if(e.key==='Enter')send(inp.value)};row.append(inp,go);w.append(el('p','note',o.note),log,ch,row);add('bot',o.hi);return w}
+function boxUI(){const w=el('div'),sel={mat:1,kit:1,bro:1},res=el('div','kpi'),ty=el('select'),nm=el('input'),go=el('button','go','Đóng hộp & nhận');res.style.display='none';nm.placeholder='Tên / công ty (không bắt buộc)';nm.className='nm';
+ ['Khay mỹ phẩm 3 chai','Khay tinh dầu 4 lọ','Khay quà tặng bộ 3'].forEach(t=>ty.appendChild(new Option(t)));
+ const IT=[['mat','Vật liệu sợi nấm mẫu','Khay hoặc bộ đệm sợi nấm thật để cầm và thử độ vừa khít với chai lọ của bạn'],['kit','Kit trồng nấm','Bộ trải nghiệm nhỏ để xem tơ nấm phát triển trên phụ phẩm'],['bro','Brochure','Brochure sản phẩm, tài liệu ứng dụng, thông tin kỹ thuật']];
+ w.appendChild(el('p','note','Chọn những gì bạn muốn cho vào hộp:'));
+ IT.forEach(a=>{const l=el('label','it'),c=el('input'),d=el('div');c.type='checkbox';c.checked=true;c.onchange=()=>{sel[a[0]]=c.checked;ty.style.display=sel.mat?'':'none'};d.append(el('b',null,a[1]),document.createTextNode(a[2]));l.append(c,d);w.appendChild(l)});
+ w.append(ty,nm,go,res);
+ go.onclick=()=>{const k=IT.filter(a=>sel[a[0]]);res.style.display='block';res.textContent='';
+  if(!k.length){res.textContent='Hãy chọn ít nhất một món cho vào hộp.';return}
+  SB.open=true;Object.keys(SB.items).forEach(x=>SB.items[x].visible=!!sel[x]);
+  res.append(el('b',null,'Hộp SB-'+(1000+Math.random()*9000|0)+' của '+(nm.value.trim()||'bạn')+' gồm:'));k.forEach(a=>res.appendChild(el('div',null,'• '+a[1]+(a[0]=='mat'?' ('+ty.value+')':''))));
+  res.appendChild(el('div',null,'Bước tiếp theo: nhân viên gửi phiếu đánh giá sample và hẹn follow-up. Đây là bản mô phỏng nên thông tin không được lưu.'))};return w}
+const ACT={};
+function mkTalk(i){return i==3?chatUI({note:'Hỏi đáp trực tiếp với diễn giả. Chọn câu hỏi thường gặp hoặc tự nhập câu hỏi.',ph:'Nhập câu hỏi cho diễn giả…',hi:'Xin mời quý khách đặt câu hỏi. Em sẽ trả lời ngay.',chips:F.map(f=>[f[0],f[1]]),sys:'Bạn là diễn giả của An Phát Holdings tại hội thảo giới thiệu bao bì sợi nấm. Trả lời tiếng Việt, lịch sự, tối đa 3 câu. Câu hỏi ngoài phạm vi: nói sẽ ghi nhận để Sales/kỹ thuật phản hồi sau hội thảo. '+RULE,fb:q=>faq(q)||'Câu hỏi rất hay. Em xin ghi nhận để đội Sales và kỹ thuật phản hồi chi tiết sau hội thảo.'})
+  :i==4?chatUI({note:'Tư vấn viên ảo (Claude) trả lời dựa trên nội dung tài liệu, mang tính minh họa, không phải cam kết thương mại.',ph:'Nhắn cho tư vấn viên…',multi:1,hi:'Xin chào, mình là tư vấn viên An Phát tại quầy 1:1. '+QS[0],chips:[['Tôi cần đóng gói chai tinh dầu 30ml'],['Khay có làm theo chai của tôi được không?'],['Tôi muốn nhận mẫu thử']],sys:'Bạn là tư vấn viên bao bì tại quầy tư vấn 1:1 của An Phát Holdings. Trả lời tiếng Việt, thân thiện, tối đa 4 câu, mỗi lượt chỉ hỏi thêm 1 câu theo thứ tự: sản phẩm cần đóng gói (kích thước, hình dạng, khối lượng, độ dễ vỡ) → bao bì hiện tại và vấn đề → yếu tố ưu tiên (bảo vệ, thiết kế riêng, hình thức, vật liệu, chi phí) → điều kiện chấp nhận mẫu và quy trình phê duyệt → thời điểm thử nghiệm. Khi đã đủ, tóm tắt yêu cầu và đề xuất nhận Sample Box hoặc chương trình thử nghiệm. '+RULE,fb:(q,n)=>(faq(q)?faq(q)+'\n\n':'Cảm ơn bạn đã chia sẻ. ')+(n<5?QS[n]:'Mình tóm tắt lại nhu cầu của bạn để chuyển cho Sales và kỹ thuật. Bạn có thể nhận Sample Box ở quầy bên cạnh hoặc hẹn chương trình thử nghiệm nhé.')}):i==5?boxUI():guideUI(i)}
+const GZ=[{who:'Nhân viên đón tiếp',hi:'Xin chào! Mình là nhân viên đón tiếp. Bạn đến từ doanh nghiệp nào và đang quan tâm bao bì cho sản phẩm gì? Mình sẽ hướng bạn tới quầy phù hợp.',ctx:'Bạn là nhân viên đón tiếp check-in. Hỏi doanh nghiệp, vai trò và ứng dụng cần đóng gói, nhắc nhận thẻ tên, rồi hướng khách tới quầy phù hợp: trưng bày mẫu (xem khay thật), quy trình (xem làm trực tiếp), hội thảo (nghe và hỏi đáp), tư vấn 1:1 (trao đổi riêng), quầy Sample Box (nhận hộp mẫu).',chips:['Tôi bên mỹ phẩm, cần khay cho chai serum','Tôi nên đi quầy nào trước?']},
+{who:'Nhân viên trưng bày',hi:'Chào bạn! Ở đây có khay cho mỹ phẩm 3 chai, tinh dầu 4 lọ và bộ quà tặng. Sản phẩm của bạn gần với loại nào?',ctx:'Bạn là nhân viên quầy trưng bày mẫu: khay mỹ phẩm 3 chai, khay tinh dầu 4 lọ, khay quà tặng bộ 3; bề mặt sần tự nhiên, hốc ôm sát chai. Hỏi khách ngành và loại chai, mời cầm thử mẫu, hướng sang tư vấn 1:1 hoặc Sample Box.',chips:['Mình làm tinh dầu','Khay làm theo chai của mình được không?']},
+{who:'Kỹ thuật viên',hi:'Chào bạn! Mình đang làm mẫu trực tiếp: phối trộn, ép khuôn rồi nuôi tơ nấm. Bạn muốn xem bước nào kỹ hơn?',ctx:'Bạn là kỹ thuật viên đang trình diễn quy trình: phụ phẩm (rơm rạ, trấu, mùn cưa) → phối trộn với giống nấm → nuôi tơ nấm trong khuôn 5–7 ngày → sấy và hoàn thiện. Tiêu chí đánh giá: độ vừa khít, tháo lắp, ổn định, quy trình đóng gói.',chips:['Nuôi mất bao lâu?','Dùng nguyên liệu gì?']}];
+function guideUI(i){const g=GZ[i];return chatUI({note:g.who+' · trả lời bằng Claude, mang tính minh họa.',ph:'Hỏi nhân viên…',multi:1,hi:g.hi,chips:g.chips.map(c=>[c]),sys:'Trả lời tiếng Việt, thân thiện, tối đa 3 câu, có thể hỏi lại 1 câu ngắn. '+g.ctx+' '+RULE,fb:q=>faq(q)||'Mình ghi nhận nhé. Bạn có thể ghé quầy tư vấn 1:1 để trao đổi chi tiết hơn.'})}
+const ROLE=['Nhân viên đón tiếp','Nhân viên trưng bày','Kỹ thuật viên','Diễn giả · Hỏi đáp','Tư vấn viên 1:1','Quầy Sample Box'],SBZ=[[],[],[],[],[],[]];
+const GREET=['Chào bạn! Bạn đến từ doanh nghiệp nào, quan tâm bao bì cho sản phẩm gì?','Mời bạn vào xem! Sản phẩm của bạn là mỹ phẩm, tinh dầu hay quà tặng?','Mời bạn lại gần xem làm mẫu! Bạn muốn biết bước nào?','Mời quý khách ngồi! Bạn có câu hỏi nào cho hội thảo không?','Mời bạn ngồi, mình hỏi nhanh: bạn cần đóng gói sản phẩm gì ạ?','Mời bạn nhận Sample Box! Bạn muốn cho gì vào hộp?'];
+const AMB=[['Chào bạn, bạn đã đăng ký chưa ạ?','Mời bạn nhận thẻ tên nhé!'],['Bạn đang đóng gói sản phẩm nào ạ?','Mời bạn cầm thử mẫu này!'],['Bạn thấy bước nào thú vị nhất?','Mời bạn xem tơ nấm đang nuôi!'],['Sắp đến phần hỏi đáp, mời bạn ngồi!','Bạn có câu hỏi nào không ạ?'],['Bạn đang dùng bao bì nào hiện nay?','Sản phẩm của bạn nặng bao nhiêu ạ?'],['Bạn muốn cho gì vào hộp mẫu?','Mời bạn nhận Sample Box!']],RE=['Mình đang tìm khay cho chai serum','Cho mình xem mẫu nhé','Mình làm tinh dầu','Mình quan tâm bao bì xanh','Có thử mẫu được không?'];
+const bub=el('div','bub'),SBL=[],TK=new Map(),wp=new THREE.Vector3();let cur2=null,lastS=null;bub.style.display='none';document.body.appendChild(bub);
+function openBubble(g){cur2=g;bub.textContent='';const z=g.userData.zone,h=el('div','bh'),x=el('button',null,'×');x.onclick=closeBub;h.append(el('span',null,ROLE[z]),x);
+ let n=TK.get(g.uuid);if(!n){n=mkTalk(z);TK.set(g.uuid,n)}bub.append(h,n);bub.style.display='block';SBL.filter(o=>o.g===g).forEach(o=>o.d.remove())}
+function closeBub(){cur2=null;bub.style.display='none'}
+function openStaff(g){if(!fp)focus(g.userData.zone,true);openBubble(g)}
+function say(g,t,ms,click){if(SBL.some(o=>o.g===g)||SBL.length>5||g===cur2)return;const d=el('div','sb',t),o={g,d};if(click){d.classList.add('ck');d.onclick=()=>{d.remove();openStaff(g)}}document.body.appendChild(d);SBL.push(o);setTimeout(()=>{d.remove();const k=SBL.indexOf(o);if(k>=0)SBL.splice(k,1)},ms)}
+function place(d,g,ax,tail){g.userData.hd.getWorldPosition(wp);wp.y+=.35;wp.project(cam);if(wp.z>1){d.style.visibility='hidden';return}d.style.visibility='visible';
+ const sx=(wp.x+1)/2*innerWidth,sy=(1-wp.y)/2*innerHeight,w=d.offsetWidth,h=d.offsetHeight,rm=innerWidth-(P.classList.contains('open')&&innerWidth>900?450:10),x=Math.max(10,Math.min(rm-w,sx-w*ax));
+ d.style.left=x+'px';d.style.top=Math.max(56,sy-h-16)+'px';if(tail)d.style.setProperty('--tx',Math.max(14,Math.min(w-30,sx-x-7))+'px')}
+function updBub(){if(cur2)place(bub,cur2,.3,1);SBL.forEach(o=>place(o.d,o.g,.5,0))}
+function ambient(v){const s=SBZ[v.zone];if(s.length&&Math.random()<.7){const st=s[Math.random()*s.length|0];say(st,AMB[v.zone][Math.random()*2|0],4200);setTimeout(()=>{if(v.g.visible&&v.st=='dwell')say(v.g,RE[Math.random()*RE.length|0],3200)},2300)}}
+
+const groups=[],pick=[];
+Z.forEach((z,i)=>{const g=new THREE.Group();g.position.set(z.x,0,z.z);g.rotation.y=z.z>0?Math.PI:0;g.userData.i=i;sc.add(g);groups.push(g);
+ const pad=new THREE.Mesh(new THREE.BoxGeometry(11,.1,9.5),M(z.col,{roughness:1}));pad.material.color.offsetHSL(0,-.1,dark?-.2:.3);pad.position.y=.05;g.add(pad);
+ const t=tag(i,z.n,z.col);t.position.set(0,5.2,0);g.add(t);
+ BUILD[i](g);
+ g.traverse(o=>{if(o.isMesh)o.userData.i=i});pick.push(g)});
+// khách ghé xem tự do: vào từ lối vào, ghé quầy bất kỳ, đứng xem rồi đi tiếp hoặc ra về
+const ENT=new THREE.Vector3(-22.5,0,0),V=[],cols=[0x3f7d58,0xd98c3f,0x7a5fb0,0x2f6f8f,0xa8532f,0x555a66];let pt=0;
+const spotOf=i=>{const z=Z[i],ds=i==3?3.9:3.4;return new THREE.Vector3(z.x+(Math.random()-.5)*7,0,z.z+(z.z<0?ds:-ds)+(Math.random()-.5)*.6)};
+const en=panel(sc,3,.7,-22.9,3.2,0,'LỐI VÀO / RA','',0x8a5a2b);en.rotation.y=Math.PI/2;box(2.6,.02,3,0x8a5a2b,-22,.02,0,sc);
+function goTo(v,i){const p=v.g.position,lane=(Math.random()-.5)*1.6,sp=spotOf(i);v.zone=i;v.q=[new THREE.Vector3(p.x,0,lane),new THREE.Vector3(sp.x,0,lane),sp];v.st='walk'}
+for(let k=0;k<16;k++){const g=new THREE.Group();cyl(.28,.9,cols[k%6],0,.55,0,g);const h=new THREE.Mesh(new THREE.SphereGeometry(.25,14,10),M(0xf0cfa8));h.position.y=1.2;g.add(h);g.userData.hd=h;sc.add(g);
+ const v={g,h,sp:1.4+Math.random()*.6,st:'wait',wait:Math.random()*10,q:[],zone:0,ry:0};V.push(v);
+ if(k<11){v.zone=k%6;g.position.copy(spotOf(v.zone));v.st='dwell';v.wait=Math.random()*8}else g.visible=false}
+function stepV(v,dt,T){const p=v.g.position;
+ if(v.st=='wait'){v.wait-=dt;if(v.wait<=0){v.g.visible=true;p.set(ENT.x,0,(Math.random()-.5)*1.4);goTo(v,0)}return}
+ if(v.st=='walk'){const t=v.q[0],dx=t.x-p.x,dz=t.z-p.z,d=Math.hypot(dx,dz),s=v.sp*dt;
+  if(d<=s){p.x=t.x;p.z=t.z;v.q.shift();if(!v.q.length){if(v.leave){v.st='wait';v.wait=3+Math.random()*8;v.g.visible=false;v.leave=0}else{v.st='dwell';v.wait=(v.zone==3?10:4)+Math.random()*(v.zone==3?8:6);done++;nEl.textContent=done;ambient(v)}}}
+  else{p.x+=dx/d*s;p.z+=dz/d*s;v.ry=Math.atan2(dx,dz)}
+  p.y=Math.abs(Math.sin(T*9+v.sp*5))*.06}
+ else{const z=Z[v.zone];v.ry=Math.atan2(z.x-p.x,z.z-p.z);p.y=0;v.h.rotation.y=Math.sin(T*.9+v.sp*7)*.5;v.wait-=dt;
+  if(v.wait<=0){if(Math.random()<.25){v.leave=1;v.q=[new THREE.Vector3(p.x,0,(Math.random()-.5)*1.4),new THREE.Vector3(ENT.x,0,(Math.random()-.5)*1.4)];v.st='walk'}else{let i;do{i=Math.random()*6|0}while(i==v.zone);goTo(v,i)}}}
+ let d=v.ry-v.g.rotation.y;d=Math.atan2(Math.sin(d),Math.cos(d));v.g.rotation.y+=d*Math.min(1,dt*8)}
+let run=true,done=0;const nEl=document.getElementById('n');
+document.getElementById('pp').onclick=e=>{run=!run;e.target.textContent=run?'Tạm dừng':'Tiếp tục'};
+// camera
+let yaw=0,pitch=.95,dist=44,tgt=new THREE.Vector3(),want={t:new THREE.Vector3(),d:44,p:.95},cur=-1;
+const nav=document.getElementById('nav');
+const mk=(t,f)=>{const b=document.createElement('button');b.textContent=t;b.onclick=f;nav.appendChild(b);return b};
+const btns=[mk('Tổng quan',()=>focus(-1))];Z.forEach((z,i)=>btns.push(mk((i+1)+' · '+z.n,()=>focus(i))));
+function focus(i,q){closeBub();if(fp){if(i>=0)tp(i);else exitFP();return}cur=i;btns.forEach((b,j)=>b.classList.toggle('on',j===i+1));
+ if(i<0){want.t.set(0,0,0);want.d=44;want.p=.95;closeP()}else{want.t.set(Z[i].x,0,Z[i].z);want.d=16;want.p=.7;if(q)closeP();else{openP(Z[i]);setTimeout(()=>{if(cur===i&&!cur2&&SBZ[i][0])say(SBZ[i][0],GREET[i],7000,1)},1000)}}}
+btns[0].classList.add('on');
+const KM={KeyW:'f',ArrowUp:'f',KeyS:'b',ArrowDown:'b',KeyA:'l',KeyD:'r',ArrowLeft:'tl',ArrowRight:'tr',KeyQ:'tl',KeyE:'tr'},MV={f:0,b:0,l:0,r:0,tl:0,tr:0};
+const fpKey=(e,d)=>{const k=KM[e.code];if(!k)return false;MV[k]=d;return true};addEventListener('keyup',e=>fpKey(e,0));
+document.querySelectorAll('#pad button').forEach(b=>{const k=b.dataset.k;b.onpointerdown=e=>{e.preventDefault();MV[k]=1};['pointerup','pointerleave','pointercancel'].forEach(v=>b['on'+v]=()=>MV[k]=0)});
+let fp=false,px=-21,pz=0,fy=-Math.PI/2,fpit=0,pT=0,bob=0;const lastZ={},vv=new THREE.Vector3(),hintEl=document.querySelector('#hud p'),hint0=hintEl.textContent,padEl=document.getElementById('pad');
+const fpb=mk('🚶 Nhập vai · góc nhìn thứ nhất',()=>fp?exitFP():enterFP());
+function enterFP(){fp=true;closeP();closeBub();px=-21;pz=0;fy=-Math.PI/2;fpit=0;cam.fov=72;cam.rotation.order='YXZ';cam.updateProjectionMatrix();padEl.classList.add('on');fpb.textContent='Thoát nhập vai';fpb.classList.add('on');btns.forEach(b=>b.classList.remove('on'));hintEl.textContent='Đi: WASD hoặc nút ▲◀▼▶ · Nhìn: kéo hoặc ⟲⟳ · Bấm vào nhân viên để trò chuyện · Esc để thoát'}
+function exitFP(){fp=false;cam.fov=50;cam.updateProjectionMatrix();padEl.classList.remove('on');fpb.textContent='🚶 Nhập vai · góc nhìn thứ nhất';fpb.classList.remove('on');hintEl.textContent=hint0;for(const k in MV)MV[k]=0;SBZ.flat().forEach(g=>g.userData.look=null);focus(-1)}
+function tp(i){const z=Z[i],sg=z.z<0?1:-1;px=z.x;pz=z.z+sg*5.4;fy=Math.atan2(0,-(z.z-pz));fpit=0}
+function fpTick(T){const dt=Math.min(.05,T-pT);pT=T;fy-=(MV.tr-MV.tl)*1.8*dt;const f=MV.f-MV.b,s=MV.r-MV.l,sp=3.4*dt;
+ let nx=px+(-Math.sin(fy)*f+Math.cos(fy)*s)*sp,nz=pz+(-Math.cos(fy)*f-Math.sin(fy)*s)*sp;nx=Math.max(-22.5,Math.min(22.5,nx));nz=Math.max(-11.5,Math.min(11.5,nz));
+ SBZ.forEach((l,i)=>l.forEach(g=>{g.getWorldPosition(vv);const dx=nx-vv.x,dz=nz-vv.z,d=Math.hypot(dx,dz)||.01;
+  if(d<.75){nx=vv.x+dx/d*.75;nz=vv.z+dz/d*.75}
+  if(d<5){const a=Math.atan2(dx,dz)-(g.parent.rotation.y+g.rotation.y);g.userData.look=Math.max(-1.1,Math.min(1.1,Math.atan2(Math.sin(a),Math.cos(a))))}else g.userData.look=null;
+  if(d<3.6&&T-(lastZ[i]||-99)>25&&!cur2){lastZ[i]=T;say(g,GREET[i],7000,1)}}));
+ if(f||s)bob+=dt*9;px=nx;pz=nz;cam.position.set(px,1.65+Math.sin(bob)*.04,pz);cam.rotation.set(fpit,fy,0)}
+
+const P=document.getElementById('p');
+function openP(z){const $=id=>document.getElementById(id);$('pt').textContent='Khu '+(Z.indexOf(z)+1)+' / 6';$('ph').textContent=z.n;$('pd').textContent=z.d;
+ $('pi').innerHTML='';z.i.forEach(t=>{const l=document.createElement('li');l.textContent=t;$('pi').appendChild(l)});$('ps').textContent=z.s;$('po').textContent=z.o;P.classList.add('open')}
+function closeP(){P.classList.remove('open')}
+document.getElementById('x').onclick=()=>focus(-1);
+addEventListener('keydown',e=>{if(e.target.tagName==='INPUT'||e.target.tagName==='SELECT')return;if(fp&&e.key==='Escape'){cur2?closeBub():exitFP();return}if(fp&&fpKey(e,1)){e.preventDefault();return}if(e.key==='Escape')focus(-1);if(e.key==='ArrowRight')focus(Math.min(5,cur+1));if(e.key==='ArrowLeft')focus(Math.max(0,cur-1))});
+const ray=new THREE.Raycaster(),mv=new THREE.Vector2(),pts=new Map();let drag=null,moved=0,pd=0;
+function hit(e){const r=cv.getBoundingClientRect();mv.set((e.clientX-r.left)/r.width*2-1,-(e.clientY-r.top)/r.height*2+1);ray.setFromCamera(mv,cam);const h=ray.intersectObjects(pick,true)[0];lastS=null;if(h){let o=h.object;while(o&&!(o.userData&&o.userData.staff))o=o.parent;lastS=o||null}return h?h.object.userData.i:-1}
+cv.addEventListener('pointerdown',e=>{pts.set(e.pointerId,e);moved=0;drag={x:e.clientX,y:e.clientY};pd=0});
+cv.addEventListener('pointermove',e=>{if(!pts.has(e.pointerId)){cv.style.cursor=hit(e)>=0?'pointer':'grab';return}pts.set(e.pointerId,e);
+ if(pts.size===2){const [a,b]=[...pts.values()],d=Math.hypot(a.clientX-b.clientX,a.clientY-b.clientY);if(pd)want.d=Math.max(10,Math.min(70,want.d*pd/d));pd=d;moved=99;return}
+ const dx=e.clientX-drag.x,dy=e.clientY-drag.y;drag={x:e.clientX,y:e.clientY};moved+=Math.abs(dx)+Math.abs(dy);if(fp){fy-=dx*.005;fpit=Math.max(-.9,Math.min(.9,fpit-dy*.004))}else{yaw-=dx*.006;want.p=Math.max(.25,Math.min(1.45,want.p+dy*.005))}});
+addEventListener('pointerup',e=>{if(pts.has(e.pointerId)&&pts.size===1&&moved<6){const i=hit(e);if(lastS)openStaff(lastS);else if(i>=0&&!fp)focus(i)}pts.delete(e.pointerId);pd=0});
+cv.addEventListener('wheel',e=>{e.preventDefault();want.d=Math.max(10,Math.min(70,want.d*(1+e.deltaY*.001)))},{passive:false});
+function size(){R.setSize(innerWidth,innerHeight,false);cam.aspect=innerWidth/innerHeight;cam.updateProjectionMatrix()}addEventListener('resize',size);size();
+(function loop(){requestAnimationFrame(loop);const T=performance.now()*.001;anim.forEach(f=>f(T));
+ if(run){const dt=Math.min(.05,T-pt);V.forEach(v=>stepV(v,dt,T))}pt=T;
+ const asp=cam.aspect,dd=want.d*(cur<0?1+Math.max(0,1.5-asp)*.9:1);
+ tgt.lerp(want.t,.08);dist+=(dd-dist)*.08;pitch+=(want.p-pitch)*.08;
+ cam.position.set(tgt.x+Math.sin(yaw)*Math.cos(pitch)*dist,tgt.y+Math.sin(pitch)*dist,tgt.z+Math.cos(yaw)*Math.cos(pitch)*dist);cam.lookAt(tgt);
+ if(fp)fpTick(T);updBub();R.render(sc,cam)})();
+</script>
+</body>
+</html>
